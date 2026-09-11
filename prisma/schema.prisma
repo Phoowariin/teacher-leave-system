@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ReqStatus {
+  pending
+  approved
+  rejected
+}
+
+model Teacher {
+  id          String       @id @default(cuid())
+  prefix      String       @default("นาย")
+  fname       String
+  lname       String
+  cid         String?      @unique
+  empNo       String?
+  position    String
+  dept        String
+  startWork   DateTime?    @db.Date
+  isTeaching  Boolean      @default(true)
+  phone       String?
+  email       String?
+  active      Boolean      @default(true)
+  leaves      Leave[]
+  permissions Permission[]
+  createdAt   DateTime     @default(now())
+
+  @@index([dept])
+}
+
+model Leave {
+  id           String    @id @default(cuid())
+  teacher      Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  teacherId    String
+  type         String
+  startDate    DateTime  @db.Date
+  endDate      DateTime  @db.Date
+  days         Float
+  reason       String
+  address      String?
+  phone        String?
+  substitute   String?
+  periods      String?
+  medicalCert  Boolean   @default(false)
+  status       ReqStatus @default(pending)
+  approverNote String?
+  fiscalYear   Int
+  half         Int
+  createdAt    DateTime  @default(now())
+
+  @@index([teacherId, fiscalYear, half])
+  @@index([status])
+}
+
+model Permission {
+  id         String    @id @default(cuid())
+  teacher    Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  teacherId  String
+  date       DateTime  @db.Date
+  timeFrom   String
+  timeTo     String
+  hours      Float
+  reason     String
+  detail     String?
+  substitute String?
+  status     ReqStatus @default(pending)
+  fiscalYear Int
+  half       Int
+  createdAt  DateTime  @default(now())
+
+  @@index([teacherId, fiscalYear, half])
+}
+
+model Holiday {
+  id   String   @id @default(cuid())
+  date DateTime @unique @db.Date
+  name String
+}
