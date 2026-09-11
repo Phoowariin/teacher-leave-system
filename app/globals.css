@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Sarabun", ui-sans-serif, system-ui, sans-serif;
+}
+
+html, body {
+  background: #f1f5f9;
+}
+
+@media print {
+  .print\:hidden { display: none !important; }
+}
